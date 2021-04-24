@@ -3,6 +3,7 @@
     "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "importHelpers": true,
@@ -20,6 +21,7 @@
   },
   "include": [
     "src/**/*",
+    "data/**/*",
     "__tests__/**/*"
   ]
 }
