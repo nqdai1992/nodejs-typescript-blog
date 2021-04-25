@@ -8,11 +8,18 @@ const dataPath = path.join(__dirname, '../../../../../data');
 
 const FileAdapter = (): ArticlePort => ({
   create: async (payload: IArticle) => {
-    const filePath = `${dataPath}/${payload.id}.json`;
+    const id = Date.now()
+    const filePath = `${dataPath}/${id}.json`;
 
-    await fsPromise.writeFile(filePath, JSON.stringify(payload));
+    await fsPromise.writeFile(filePath, JSON.stringify({
+      id,
+      ...payload
+    }));
 
-    return payload;
+    return {
+      id,
+      ...payload
+    };
   },
   update: async (id: string, payload: IArticleWithoutId) => {
     const filePath = `${dataPath}/${id}.json`;

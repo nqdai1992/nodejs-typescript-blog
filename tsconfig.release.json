@@ -6,7 +6,6 @@
     "removeComments": true
   },
   "include": [
-    "src/**/*",
-    "data/*"
+    "src/**/*"
   ]
 }

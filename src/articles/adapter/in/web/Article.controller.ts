@@ -5,10 +5,12 @@ import {
   getArticle,
   updateArticle,
   removeArticle,
+  createArticle,
 } from '../../../application/services/ArticleService';
 
 import ArticleMustHasId from '../../../application/ports/in/ArticleMusHasId';
 import UpdatingArticlePayloadIsValid from '../../../application/ports/in/UpdatingArticlePayloadIsValid';
+import CreatingArticlePayloadIsValid from '../../../application/ports/in/CreatingArticlePayloadIsValid';
 
 const router = express.Router();
 const articlePath = URLPath('articles');
@@ -60,4 +62,16 @@ router.delete(articlePath.toString(), async (req, res, next) => {
   }
 });
 
-export default router
+router.post(articlePath.toString(), async (req, res, next) => {
+  try {
+    console.log('....',req.body)
+    const articlePayload = CreatingArticlePayloadIsValid(req.body);
+    const newArticle = await createArticle(articlePayload);
+
+    res.status(200).send(newArticle)
+  } catch (err) {
+    next(err);
+  }
+});
+
+export default router;
