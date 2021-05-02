@@ -1,10 +1,21 @@
 import { ArticlePort } from '../../../application/ports/out/ArticlePort';
 import fsPromise from 'fs/promises';
+import fs from 'fs'
 import path from 'path';
 import IArticle from '../../../domain/IArticle';
 import IArticleWithoutId from '../../../domain/IArticleWithoutId';
 
-const dataPath = path.join(__dirname, '../../../../../data');
+const dataPath = path.join(require.main.path, '../data');
+
+function ensureDirSync (dirpath) {
+  try {
+    return fs.mkdirSync(dirpath)
+  } catch (err) {
+    if (err.code !== 'EEXIST') throw err
+  }
+}
+
+ensureDirSync(dataPath)
 
 const FileAdapter = (): ArticlePort => ({
   create: async (payload: IArticle) => {
