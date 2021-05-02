@@ -1,23 +1,19 @@
 import express from 'express';
-import { URLPath } from '../../../../utils';
-import {
-  getAllArticle,
-  getArticle,
-  updateArticle,
-  removeArticle,
-  createArticle,
-} from '../../../application/services/ArticleService';
+import { URLPath } from '@src/utils';
+import ArticleService from '@src/articles/application/services/ArticleService';
 
-import ArticleMustHasId from '../../../application/ports/in/ArticleMusHasId';
-import UpdatingArticlePayloadIsValid from '../../../application/ports/in/UpdatingArticlePayloadIsValid';
-import CreatingArticlePayloadIsValid from '../../../application/ports/in/CreatingArticlePayloadIsValid';
+import ArticleMustHasId from '@src/articles/application/ports/in/ArticleMusHasId';
+import UpdatingArticlePayloadIsValid from '@src/articles/application/ports/in/UpdatingArticlePayloadIsValid';
+import CreatingArticlePayloadIsValid from '@src/articles/application/ports/in/CreatingArticlePayloadIsValid';
+import IArticleService from '@src/articles/application/ports/in/IArticleService';
 
 const router = express.Router();
 const articlePath = URLPath('articles');
+const articleService:IArticleService = new ArticleService()
 
 router.get(articlePath.toString(), async (_req, res, next) => {
   try {
-    const articles = await getAllArticle();
+    const articles = await articleService.getAllArticle();
 
     res.status(200).send(articles);
   } catch (err) {
@@ -28,7 +24,7 @@ router.get(articlePath.toString(), async (_req, res, next) => {
 router.get(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
     const articleId = ArticleMustHasId(req.params.id);
-    const article = await getArticle(articleId);
+    const article = await articleService.getArticle(articleId);
 
     res.status(200).send(article);
   } catch (err) {
@@ -40,7 +36,7 @@ router.put(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
     const articleId = ArticleMustHasId(req.params.id);
     const updatingArticlePayload = UpdatingArticlePayloadIsValid(req.body);
-    const updatedArticle = await updateArticle(
+    const updatedArticle = await articleService.updateArticle(
       articleId,
       updatingArticlePayload,
     );
@@ -54,7 +50,7 @@ router.put(articlePath.join(':id').toString(), async (req, res, next) => {
 router.delete(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
     const articleId = ArticleMustHasId(req.params.id);
-    await removeArticle(articleId);
+    await articleService.removeArticle(articleId);
 
     res.status(200).send('Remove the article successfully');
   } catch (err) {
@@ -65,7 +61,7 @@ router.delete(articlePath.join(':id').toString(), async (req, res, next) => {
 router.post(articlePath.toString(), async (req, res, next) => {
   try {
     const articlePayload = CreatingArticlePayloadIsValid(req.body);
-    const newArticle = await createArticle(articlePayload);
+    const newArticle = await articleService.createArticle(articlePayload);
 
     res.status(200).send(newArticle)
   } catch (err) {

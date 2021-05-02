@@ -2,28 +2,35 @@ import FileAdapter from '../../adapter/out/persistence/FileAdapter';
 import IArticle from '../../domain/IArticle';
 import IArticleWithoutId from '../../domain/IArticleWithoutId';
 import { ArticlePort } from '../ports/out/ArticlePort';
+import IArticleService from '../ports/in/IArticleService'
 
-const ArticleAdapter: ArticlePort = FileAdapter();
+export default class ArticleService implements IArticleService {
+  private ArticleAdapter: ArticlePort;
 
-export const createArticle = async (payload: IArticleWithoutId): Promise<IArticle> => {
-  return await ArticleAdapter.create(payload);
-};
+  constructor() {
+    this.ArticleAdapter = FileAdapter();
+  }
 
-export const getArticle = async (id: string): Promise<IArticle> => {
-  return await ArticleAdapter.findOne(id);
-};
+  async createArticle(payload: IArticleWithoutId): Promise<IArticle> {
+    return await this.ArticleAdapter.create(payload);
+  }
 
-export const getAllArticle = async (): Promise<IArticle[]> => {
-  return await ArticleAdapter.findAll();
-};
+  async getArticle(id: string): Promise<IArticle> {
+    return await this.ArticleAdapter.findOne(id);
+  }
 
-export const updateArticle = async (
-  id: string,
-  payload: IArticleWithoutId,
-): Promise<IArticle> => {
-  return await ArticleAdapter.update(id, payload);
-};
+  async getAllArticle(): Promise<IArticle[]> {
+    return await this.ArticleAdapter.findAll();
+  }
 
-export const removeArticle = async (id: string): Promise<boolean> => {
-  return await ArticleAdapter.delete(id);
-};
+  async updateArticle(
+    id: string,
+    payload: IArticleWithoutId,
+  ): Promise<IArticle> {
+    return await this.ArticleAdapter.update(id, payload);
+  }
+
+  async removeArticle(id: string): Promise<boolean> {
+    return await this.ArticleAdapter.delete(id);
+  }
+}
