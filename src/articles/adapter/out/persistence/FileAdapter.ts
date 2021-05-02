@@ -64,6 +64,7 @@ const FileAdapter = (): ArticlePort => ({
     )).map(content => JSON.parse(content));
   },
   delete: async (id: string) => {
+    console.log('remove file',id)
     const filePath = `${dataPath}/${id}.json`;
 
     await fsPromise.unlink(filePath);

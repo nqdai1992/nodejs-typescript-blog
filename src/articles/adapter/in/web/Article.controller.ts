@@ -51,7 +51,7 @@ router.put(articlePath.join(':id').toString(), async (req, res, next) => {
   }
 });
 
-router.delete(articlePath.toString(), async (req, res, next) => {
+router.delete(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
     const articleId = ArticleMustHasId(req.params.id);
     await removeArticle(articleId);
@@ -64,7 +64,6 @@ router.delete(articlePath.toString(), async (req, res, next) => {
 
 router.post(articlePath.toString(), async (req, res, next) => {
   try {
-    console.log('....',req.body)
     const articlePayload = CreatingArticlePayloadIsValid(req.body);
     const newArticle = await createArticle(articlePayload);
 
