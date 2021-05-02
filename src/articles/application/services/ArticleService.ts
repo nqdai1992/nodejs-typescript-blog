@@ -1,36 +1,43 @@
 import FileAdapter from '../../adapter/out/persistence/FileAdapter';
-import IArticle from '../../domain/IArticle';
-import IArticleWithoutId from '../../domain/IArticleWithoutId';
-import { ArticlePort } from '../ports/out/ArticlePort';
-import IArticleService from '../ports/in/IArticleService'
+import ArticleOutPort from '../ports/out/ArticleOutPort';
+import ArticleInPort from '../ports/in/ArticleInPort';
+import UpdatingArticlePayload from '../ports/in/UpdatingArticlePayload';
+import RemovingArticlePayload from '../ports/in/RemovingArticlePayload';
+import CreatingArticlePayload from '../ports/in/CreatingArticlePayload';
+import GettingOneArticlePayload from '../ports/in/GettingOneArticlePayload';
+import Article from '@src/articles/domain/Article';
 
-export default class ArticleService implements IArticleService {
-  private ArticleAdapter: ArticlePort;
+export default class ArticleService implements ArticleInPort {
+  private ArticleAdapter: ArticleOutPort;
 
   constructor() {
-    this.ArticleAdapter = FileAdapter();
+    this.ArticleAdapter = FileAdapter;
   }
 
-  async createArticle(payload: IArticleWithoutId): Promise<IArticle> {
-    return await this.ArticleAdapter.create(payload);
+  async createArticle(payload: CreatingArticlePayload): Promise<Article> {
+    const { authorId, content } = payload;
+    const articleWithoutId = Article.withoutId(authorId, content);
+
+    return await this.ArticleAdapter.create(articleWithoutId);
   }
 
-  async getArticle(id: string): Promise<IArticle> {
+  async getArticle(payload: GettingOneArticlePayload): Promise<Article> {
+    const { id } = payload;
     return await this.ArticleAdapter.findOne(id);
   }
 
-  async getAllArticle(): Promise<IArticle[]> {
+  async getAllArticle(): Promise<Article[]> {
     return await this.ArticleAdapter.findAll();
   }
 
-  async updateArticle(
-    id: string,
-    payload: IArticleWithoutId,
-  ): Promise<IArticle> {
-    return await this.ArticleAdapter.update(id, payload);
+  async updateArticle(payload: UpdatingArticlePayload): Promise<Article> {
+    const { id, authorId, content } = payload;
+    const article = Article.withId(id, authorId, content);
+    return await this.ArticleAdapter.update(article);
   }
 
-  async removeArticle(id: string): Promise<boolean> {
+  async removeArticle(payload: RemovingArticlePayload): Promise<boolean> {
+    const { id } = payload;
     return await this.ArticleAdapter.delete(id);
   }
 }

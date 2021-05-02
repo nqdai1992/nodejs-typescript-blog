@@ -1,15 +1,15 @@
 import express from 'express';
 import { URLPath } from '@src/utils';
 import ArticleService from '@src/articles/application/services/ArticleService';
-
-import ArticleMustHasId from '@src/articles/application/ports/in/ArticleMusHasId';
-import UpdatingArticlePayloadIsValid from '@src/articles/application/ports/in/UpdatingArticlePayloadIsValid';
-import CreatingArticlePayloadIsValid from '@src/articles/application/ports/in/CreatingArticlePayloadIsValid';
-import IArticleService from '@src/articles/application/ports/in/IArticleService';
+import UpdatingArticlePayload from '@src/articles/application/ports/in/UpdatingArticlePayload';
+import CreatingArticlePayload from '@src/articles/application/ports/in/CreatingArticlePayload';
+import ArticleInPort from '@src/articles/application/ports/in/ArticleInPort';
+import RemovingArticlePayload from '@src/articles/application/ports/in/RemovingArticlePayload';
+import GettingOneArticlePayload from '@src/articles/application/ports/in/GettingOneArticlePayload';
 
 const router = express.Router();
 const articlePath = URLPath('articles');
-const articleService:IArticleService = new ArticleService()
+const articleService:ArticleInPort = new ArticleService()
 
 router.get(articlePath.toString(), async (_req, res, next) => {
   try {
@@ -23,8 +23,8 @@ router.get(articlePath.toString(), async (_req, res, next) => {
 
 router.get(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
-    const articleId = ArticleMustHasId(req.params.id);
-    const article = await articleService.getArticle(articleId);
+    const gettingOneArticlePayload = new GettingOneArticlePayload(req.params.id);
+    const article = await articleService.getArticle(gettingOneArticlePayload);
 
     res.status(200).send(article);
   } catch (err) {
@@ -34,12 +34,8 @@ router.get(articlePath.join(':id').toString(), async (req, res, next) => {
 
 router.put(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
-    const articleId = ArticleMustHasId(req.params.id);
-    const updatingArticlePayload = UpdatingArticlePayloadIsValid(req.body);
-    const updatedArticle = await articleService.updateArticle(
-      articleId,
-      updatingArticlePayload,
-    );
+    const updatingArticlePayload = new UpdatingArticlePayload(req.params.id, req.body.authorId, req.body.content);
+    const updatedArticle = await articleService.updateArticle(updatingArticlePayload);
 
     res.status(200).send(updatedArticle);
   } catch (err) {
@@ -49,8 +45,8 @@ router.put(articlePath.join(':id').toString(), async (req, res, next) => {
 
 router.delete(articlePath.join(':id').toString(), async (req, res, next) => {
   try {
-    const articleId = ArticleMustHasId(req.params.id);
-    await articleService.removeArticle(articleId);
+    const removeArticlePayload = new RemovingArticlePayload(req.params.id)
+    await articleService.removeArticle(removeArticlePayload);
 
     res.status(200).send('Remove the article successfully');
   } catch (err) {
@@ -60,7 +56,7 @@ router.delete(articlePath.join(':id').toString(), async (req, res, next) => {
 
 router.post(articlePath.toString(), async (req, res, next) => {
   try {
-    const articlePayload = CreatingArticlePayloadIsValid(req.body);
+    const articlePayload = new CreatingArticlePayload(req.body.authorId, req.body.content);
     const newArticle = await articleService.createArticle(articlePayload);
 
     res.status(200).send(newArticle)

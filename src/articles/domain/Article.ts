@@ -1,14 +1,11 @@
-import IArticle from './IArticle';
+export default class Article {
+  constructor (readonly id: string, readonly authorId: string, readonly content: string) {}
 
-const Article = (id: string, authorId: string, content: string) => ({ id, authorId, content });
+  static withId (id: string, authorId: string, content: string): Article {
+    return new Article(id, authorId, content)
+  }
 
-const withoutId = (authorId: string, content: string): IArticle =>
-  Article(null, authorId, content);
-
-const withId = (id: string, authorId: string, content: string): IArticle =>
-  Article(id, authorId, content);
-
-export default {
-  withId,
-  withoutId,
-};
+  static withoutId (authorId: string, content: string): Article {
+    return new Article(null, authorId, content)
+  }
+}

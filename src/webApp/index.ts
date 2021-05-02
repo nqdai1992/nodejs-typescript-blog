@@ -1,5 +1,5 @@
 import express from 'express';
-import ArticleController from '../articles/adapter/in/web/Article.controller';
+import ArticleController from '../articles/adapter/in/web/ArticleController';
 
 const app = express();
 const port = process.env.PORT || 3000;
