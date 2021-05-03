@@ -1,3 +1,5 @@
+import APIError from '@src/common/APIError';
+import HttpStatusCode from '@src/common/HttpStatusCode';
 import Ajv from 'ajv';
 
 const ajv = new Ajv();
@@ -17,7 +19,12 @@ export default class CreatingArticlePayload {
       authorId: this.authorId,
       content: this.content
     })
-    console.log(ajv.errors)
-    if (!isValid) throw new Error(ajv.errors?.toString() || 'Payload is invalid')
+    
+    if (!isValid) throw new APIError(
+      'BAD REQUEST',
+      HttpStatusCode.BAD_REQUEST,
+      true,
+      ajv.errors[0].message
+    )
   }
 }

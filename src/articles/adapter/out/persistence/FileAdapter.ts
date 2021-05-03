@@ -1,35 +1,41 @@
 import ArticleOutPort from '../../../application/ports/out/ArticleOutPort';
 import fsPromise from 'fs/promises';
-import fs from 'fs'
+import fs from 'fs';
 import path from 'path';
 import Article from '@src/articles/domain/Article';
 
 const dataPath = path.join(require.main.path, '../data');
 
 class FileAdapter implements ArticleOutPort {
-  constructor (dirpath: string) {
+  constructor(dirpath: string) {
     try {
-      fs.mkdirSync(dirpath)
+      fs.mkdirSync(dirpath);
     } catch (err) {
-      if (err.code !== 'EEXIST') throw err
+      if (err.code !== 'EEXIST') throw err;
     }
   }
 
-  async create (payload) {
-    const id = Date.now().toString()
+  async create(payload) {
+    const id = Date.now().toString();
     const filePath = `${dataPath}/${id}.json`;
-    const newArticle = Article.withId(id, payload.authorId, payload.content)
+    const newArticle = Article.withId(id, payload.authorId, payload.content);
+    try {
+      await fsPromise.writeFile(
+        filePath,
+        JSON.stringify({
+          id: newArticle.id,
+          authorId: newArticle.authorId,
+          content: newArticle.content,
+        }),
+      );
 
-    await fsPromise.writeFile(filePath, JSON.stringify({
-      id: newArticle.id,
-      authorId: newArticle.authorId,
-      content: newArticle.content
-    }));
-
-    return newArticle
+      return newArticle;
+    } catch (err) {
+      return null;
+    }
   }
 
-  async update (payload) {
+  async update(payload) {
     const filePath = `${dataPath}/${payload.id}.json`;
 
     await fsPromise.writeFile(
@@ -37,37 +43,42 @@ class FileAdapter implements ArticleOutPort {
       JSON.stringify({
         id: payload.id,
         content: payload.content,
-        authorId: payload.authorId
+        authorId: payload.authorId,
       }),
     );
 
     return payload;
   }
-  async findOne (id: string) {
+  async findOne(id: string) {
     const filePath = `${dataPath}/${id}.json`;
 
-    const content = await fsPromise.readFile(filePath);
-
-    return JSON.parse(content.toString());
+    try {
+      const content = await fsPromise.readFile(filePath);
+      return JSON.parse(content.toString());
+    } catch (err) {
+      return null
+    }
+    
   }
-  
-  async findAll () {
+
+  async findAll() {
     const fileNames = await fsPromise.readdir(dataPath);
-    return (await Promise.all(
-      fileNames.map(async (fileName) =>
-        (await fsPromise.readFile(`${dataPath}/${fileName}`)).toString(),
-      ),
-    )).map(content => JSON.parse(content));
+    return (
+      await Promise.all(
+        fileNames.map(async (fileName) =>
+          (await fsPromise.readFile(`${dataPath}/${fileName}`)).toString(),
+        ),
+      )
+    ).map((content) => JSON.parse(content));
   }
 
-  async delete (id: string) {
-    console.log('remove file',id)
+  async delete(id: string) {
     const filePath = `${dataPath}/${id}.json`;
 
     await fsPromise.unlink(filePath);
 
-    return true
+    return true;
   }
-};
+}
 
-export default new FileAdapter(dataPath)
+export default new FileAdapter(dataPath);
