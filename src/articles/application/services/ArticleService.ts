@@ -17,8 +17,14 @@ export default class ArticleService implements ArticleInPort {
   }
 
   async createArticle(payload: CreatingArticlePayload): Promise<Article> {
-    const { authorId, content } = payload;
-    const articleWithoutId = Article.withoutId(authorId, content);
+    const { authorId, content, title, type, description } = payload;
+    const articleWithoutId = Article.withoutId(
+      authorId,
+      content,
+      description,
+      title,
+      type,
+    );
     const article = await this.ArticleAdapter.create(articleWithoutId);
 
     if (!article)
@@ -54,8 +60,15 @@ export default class ArticleService implements ArticleInPort {
   async updateArticle(
     payload: UpdatingArticlePayload,
   ): Promise<Article | null> {
-    const { id, authorId, content } = payload;
-    const article = Article.withId(id, authorId, content);
+    const { id, authorId, content, description, title, type } = payload;
+    const article = Article.withId(
+      id,
+      authorId,
+      content,
+      description,
+      title,
+      type,
+    );
     const newArticle = await this.ArticleAdapter.update(article);
 
     if (!newArticle)

@@ -3,6 +3,8 @@ import fsPromise from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
 import Article from '@src/articles/domain/Article';
+import CreatingArticlePayload from '@src/articles/application/ports/in/CreatingArticlePayload';
+import UpdatingArticlePayload from '@src/articles/application/ports/in/UpdatingArticlePayload';
 
 const dataPath = path.join(require.main.path, '../data');
 
@@ -15,10 +17,17 @@ class FileAdapter implements ArticleOutPort {
     }
   }
 
-  async create(payload) {
+  async create(payload: CreatingArticlePayload) {
     const id = Date.now().toString();
     const filePath = `${dataPath}/${id}.json`;
-    const newArticle = Article.withId(id, payload.authorId, payload.content);
+    const newArticle = Article.withId(
+      id,
+      payload.authorId,
+      payload.content,
+      payload.description,
+      payload.title,
+      payload.type
+    );
     try {
       await fsPromise.writeFile(
         filePath,
@@ -26,6 +35,9 @@ class FileAdapter implements ArticleOutPort {
           id: newArticle.id,
           authorId: newArticle.authorId,
           content: newArticle.content,
+          description: newArticle.description,
+          title: newArticle.title,
+          type: newArticle.type
         }),
       );
 
@@ -35,7 +47,7 @@ class FileAdapter implements ArticleOutPort {
     }
   }
 
-  async update(payload) {
+  async update(payload: UpdatingArticlePayload) {
     const filePath = `${dataPath}/${payload.id}.json`;
 
     await fsPromise.writeFile(
@@ -44,6 +56,9 @@ class FileAdapter implements ArticleOutPort {
         id: payload.id,
         content: payload.content,
         authorId: payload.authorId,
+        description: payload.description,
+        title: payload.title,
+        type: payload.type
       }),
     );
 
@@ -56,9 +71,8 @@ class FileAdapter implements ArticleOutPort {
       const content = await fsPromise.readFile(filePath);
       return JSON.parse(content.toString());
     } catch (err) {
-      return null
+      return null;
     }
-    
   }
 
   async findAll() {

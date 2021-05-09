@@ -9,12 +9,21 @@ const CreatignArticleSchema = {
   properties: {
     authorId: { type: 'string' },
     content: { type: 'string' },
+    description: { type: 'string' },
+    title: { type: 'string' },
+    type: { type: 'string' },
   },
-  required: ['authorId', 'content'],
+  required: ['authorId', 'content', 'title'],
   additionalProperties: false,
 };
 export default class CreatingArticlePayload {
-  constructor (readonly authorId: string, readonly content: string) {
+  constructor (
+      readonly authorId: string, 
+      readonly content: string,
+      readonly description: string,
+      readonly title: string,
+      readonly type: string
+    ) {
     const isValid = ajv.validate(CreatignArticleSchema, {
       authorId: this.authorId,
       content: this.content
